@@ -20,10 +20,22 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
   const rainHeight = 52;
   const tempHeight = 56;
   const paddingX = 12;
-  const paddingY = 8;
+  const paddingY = 10;
 
   const chartWidth = width - paddingX * 2;
   const stepX = chartWidth / (hourly.length - 1);
+
+  // Find exact single index for min and max (picking median index of plateau to center the label)
+  const maxIndices: number[] = [];
+  const minIndices: number[] = [];
+
+  hourly.forEach((h, idx) => {
+    if (h.temp === maxTemp) maxIndices.push(idx);
+    if (h.temp === minTemp) minIndices.push(idx);
+  });
+
+  const singleMaxIdx = maxIndices[Math.floor(maxIndices.length / 2)];
+  const singleMinIdx = minIndices[Math.floor(minIndices.length / 2)];
 
   // Temperature spline points
   const tempPoints = hourly.map((h, idx) => {
@@ -119,7 +131,7 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
         </svg>
       </div>
 
-      {/* 2. In-Column Temperature Spline Curve with Distinct Degree Colors */}
+      {/* 2. In-Column Temperature Spline Curve (Clean Single Max & Min Labels) */}
       <div>
         <div className="flex items-center justify-between text-[11px] font-mono mb-1 text-slate-400">
           <span className="font-semibold text-slate-300">Température 24h</span>
@@ -136,7 +148,7 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
         <svg viewBox={`0 0 ${width} ${tempHeight}`} className="w-full h-14 overflow-visible">
           <defs>
             <linearGradient id="colTempArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={maxStyle.hex} stopOpacity="0.25" />
+              <stop offset="0%" stopColor={maxStyle.hex} stopOpacity="0.22" />
               <stop offset="100%" stopColor={minStyle.hex} stopOpacity="0.0" />
             </linearGradient>
             <linearGradient id="colTempLine" x1="0" y1="0" x2="1" y2="0">
@@ -154,29 +166,30 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
             strokeLinecap="round"
           />
 
-          {/* Dots on key hours */}
+          {/* Dots on regularly spaced hours (every 6h) + clean single min/max */}
           {tempPoints.map((pt, i) => {
-            const isMin = pt.temp === minTemp;
-            const isMax = pt.temp === maxTemp;
-            const showPoint = i % 6 === 0 || isMin || isMax;
-            if (!showPoint) return null;
+            const isSingleMax = i === singleMaxIdx;
+            const isSingleMin = i === singleMinIdx;
+            const isInterval = i % 6 === 0;
+
+            if (!isSingleMax && !isSingleMin && !isInterval) return null;
 
             return (
               <g key={i}>
                 <circle
                   cx={pt.x}
                   cy={pt.y}
-                  r={isMin || isMax ? 3.5 : 2.5}
+                  r={isSingleMax || isSingleMin ? 3.5 : 2}
                   fill="#0f172a"
                   stroke={pt.style.hex}
-                  strokeWidth={2}
+                  strokeWidth={isSingleMax || isSingleMin ? 2 : 1.5}
                 />
-                {(isMin || isMax) && (
+                {(isSingleMax || isSingleMin) && (
                   <text
                     x={pt.x}
-                    y={pt.y - 5}
+                    y={isSingleMin ? pt.y + 11 : pt.y - 5}
                     fill={pt.style.hex}
-                    fontSize="9"
+                    fontSize="9.5"
                     fontWeight="bold"
                     fontFamily="monospace"
                     textAnchor="middle"
