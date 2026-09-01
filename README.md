@@ -1,33 +1,48 @@
-# New Tab Dashboard
+# New Tab • Minimal Weather & Clock
 
-An ultra-clean, minimal, dark-mode New Tab dashboard built with React, TypeScript, TanStack Query, and Tailwind CSS.
+Un tableau de bord minimaliste, sombre et élégant pour votre nouvel onglet Google Chrome, conçu avec React, TypeScript, Tailwind CSS, Open-Meteo et WebGL (React Bits).
 
-## Features
+## ✨ Fonctionnalités
 
-- **Centered Real-time Clock**: Oversized digital clock display with seconds, live date, and 12h/24h toggle.
-- **15-Day Paris Weather**: Real-time Paris weather powered by TanStack Query and Open-Meteo API. Displays current temperature, humidity, wind speed, 15-day forecast cards with colored condition icons, high/low temperatures, precipitation chances, and daily detailed metric modal.
-- **Gemini Prompt Form**: Minimal floating prompt input bar with `/` keyboard shortcut, auto-clipboard copy, and direct redirection to Google Gemini.
-- **Minimal Shortcuts Dock**: Clean shortcuts to frequent tools (GitHub, Gemini, YouTube, Gmail, DevDocs, Hacker News).
-- **Customization**: Temperature unit switcher (°C / °F) and time format toggle (12h / 24h) with localStorage persistence.
+- **Horloge digitale grand format** : Affichage temps réel avec secondes et date complète en français.
+- **Bande météo 15 jours Paris (Brutaliste & Continue)** :
+  - Découpage en 3 moments de la journée : **Matin (9h)**, **Midi (15h)** et **Soir (21h)** avec icônes colorées et probabilités de pluie.
+  - Graphiques 24h intégrés directement dans chaque colonne :
+    - Bâtons de probabilité de pluie heure par heure.
+    - Courbe spline de température continue sur 24h avec indicateurs min/max dédupliqués.
+  - Horaires solaires : Lever (`🌅`) et coucher (`🌇`) du soleil, humidité, vent et indice UV.
+- **Palette thermique continue par degré** :
+  - **Froid (< 18°C)** : Spectre de bleu progressif (du bleu nuit saphir au cyan polaire givré avec cristaux de gel).
+  - **Doux / Tempéré (18°C à 26°C)** : Spectre de vert émeraude / menthe éclatant.
+  - **Chaleur (> 26°C)** : Rouge vif incandescent avec badges flammes animés (`🔥`).
+- **Arrière-plan dynamique Topography** : Rendu de courbes de niveau en WebGL 2 à 50% d'opacité avec déformation interactive à la souris.
+- **Extension Google Chrome native (Manifest V3)** : Remplace instantanément chaque nouvel onglet (`Cmd + T`).
 
-## Getting Started
+---
 
-### Installation
+## 🚀 Installation dans Google Chrome
+
+1. Clonez et compilez le projet :
+   ```bash
+   pnpm install
+   pnpm build
+   ```
+2. Ouvrez Google Chrome et rendez-vous sur : `chrome://extensions`
+3. Activez le **"Mode développeur"** (en haut à droite).
+4. Cliquez sur **"Charger l'extension non empaquetée"** et sélectionnez le dossier `dist/` du projet :
+   ```
+   /Users/vava/Documents/GitHub/newtab/dist
+   ```
+5. Ouvrez un nouvel onglet (`Cmd + T`) !
+
+---
+
+## 🛠️ Développement local
 
 ```bash
-pnpm install
-```
-
-### Run Locally
-
-```bash
+# Lancer le serveur de dev
 pnpm dev
-```
 
-Visit `http://localhost:5173` in your browser.
-
-### Production Build
-
-```bash
+# Compiler pour la production / extension Chrome
 pnpm build
 ```
