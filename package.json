@@ -13,9 +13,11 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.10",
     "lucide-react": "^1.16.0",
+    "motion": "^13.1.1",
     "ogl": "^1.0.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-use-measure": "^2.1.7",
     "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {

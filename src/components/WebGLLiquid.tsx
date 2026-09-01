@@ -18,7 +18,6 @@ uniform vec3 u_colorHighlight;
 uniform float u_speed;
 uniform float u_flowStrength;
 uniform float u_grain;
-uniform float u_contrast;
 uniform float u_opacity;
 
 float hash(vec2 p) {
@@ -40,7 +39,7 @@ float fbm(vec2 p) {
   float v = 0.0;
   float a = 0.5;
   mat2 rot = mat2(0.86, 0.51, -0.51, 0.86);
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 4; i++) {
     v += a * noise(p);
     p = rot * p * 2.0;
     a *= 0.5;
@@ -48,89 +47,60 @@ float fbm(vec2 p) {
   return v;
 }
 
-vec3 applyContrast(vec3 c, float contrast) {
-  return clamp((c - 0.5) * contrast + 0.5, 0.0, 1.0);
-}
-
 void main() {
   vec2 uv = gl_FragCoord.xy / u_res;
-  float t = u_time * (0.10 * u_speed);
+  float t = u_time * (0.08 * u_speed);
   vec2 aspect = vec2(u_res.x / max(u_res.y, 1.0), 1.0);
   vec2 p = (uv - 0.5) * aspect;
 
-  vec2 flowP = vec2(p.x * 1.1, p.y - t * 0.2);
-  float n1 = fbm(flowP * 2.2 + vec2(0.0, t * 0.1));
-  float n2 = fbm((flowP + n1 * 0.4) * 3.2 - vec2(0.0, t * 0.2));
-  float n3 = fbm((flowP + n2 * 0.35) * 4.5 + vec2(t * 0.08, 0.0));
+  vec2 flowP = vec2(p.x * 1.2, p.y - t * 0.2);
+  float n1 = fbm(flowP * 1.8 + vec2(0.0, t * 0.1));
+  float n2 = fbm((flowP + n1 * 0.3) * 2.8 - vec2(0.0, t * 0.18));
+  float n3 = fbm((flowP + n2 * 0.25) * 4.0 + vec2(t * 0.08, 0.0));
 
-  float structure = n3 * 1.1 + (n2 - 0.5) * 0.45;
-  structure += (n1 - 0.5) * 0.25 * u_flowStrength;
+  float flow = n3 * 0.6 + n2 * 0.4;
+  flow += (n1 - 0.5) * 0.2 * u_flowStrength;
 
-  float lowBand = smoothstep(0.1, 0.55, structure);
-  float highBand = smoothstep(0.55, 1.05, structure);
-  vec3 col = mix(u_colorDeep, u_colorMid, lowBand);
-  col = mix(col, u_colorHighlight, highBand);
+  // Smooth dark ocean palette mapping
+  float band1 = smoothstep(0.35, 0.65, flow);
+  float band2 = smoothstep(0.65, 0.95, flow);
 
-  float glow = smoothstep(0.45, 0.9, structure) * (0.15 + 0.3 * u_flowStrength);
-  col += glow * u_colorHighlight * 0.2;
+  vec3 col = mix(u_colorDeep, u_colorMid, band1);
+  col = mix(col, u_colorHighlight, band2);
 
-  float vignette = smoothstep(1.4, 0.3, length(uv - 0.5));
-  col *= mix(0.75, 1.0, vignette);
+  // Subtle silk ribbon glow
+  float ribbon = exp(-pow((flow - 0.7) * 4.0, 2.0));
+  col += u_colorHighlight * ribbon * 0.35 * u_flowStrength;
 
-  col = applyContrast(col, u_contrast);
+  // Vignette to keep edges dark
+  float vignette = smoothstep(1.2, 0.3, length(uv - 0.5));
+  col *= mix(0.7, 1.0, vignette);
 
+  // Subtle grain
   float dither = (hash(gl_FragCoord.xy + t * 10.0) - 0.5) * u_grain;
   col += dither;
 
-  // Dark slate 950 base
-  vec3 bg = vec3(0.01, 0.015, 0.035);
-  float mask = smoothstep(0.05, 0.85, structure) * u_opacity;
-  vec3 finalColor = mix(bg, col, clamp(mask, 0.0, 1.0));
+  // Base background: Slate 950 (#020617)
+  vec3 bg = vec3(0.008, 0.015, 0.035);
+  vec3 finalColor = mix(bg, col, clamp(u_opacity, 0.0, 1.0));
 
   gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
 }
 `;
 
-const HEX_COLOR_REGEX = /^#?[0-9a-fA-F]{6}$/;
-const FALLBACK_DEEP = '#02040a';
-
-function sanitizeHexColor(value: string, fallback: string) {
-  const trimmed = value.trim();
-  if (!HEX_COLOR_REGEX.test(trimmed)) {
-    return fallback;
-  }
-  return trimmed.startsWith('#') ? trimmed : `#${trimmed}`;
-}
-
-function hexToRgb01(hex: string): [number, number, number] {
-  const normalized = sanitizeHexColor(hex, FALLBACK_DEEP).replace('#', '');
-  const r = parseInt(normalized.slice(0, 2), 16) / 255;
-  const g = parseInt(normalized.slice(2, 4), 16) / 255;
-  const b = parseInt(normalized.slice(4, 6), 16) / 255;
-  return [r, g, b];
-}
-
 export interface WebGLLiquidProps {
-  colorDeep?: string;
-  colorMid?: string;
-  colorHighlight?: string;
   speed?: number;
   flowStrength?: number;
   grain?: number;
-  contrast?: number;
   opacity?: number;
   className?: string;
 }
 
 export const WebGLLiquid: React.FC<WebGLLiquidProps> = ({
-  colorDeep = '#02040a',
-  colorMid = '#0f172a',
-  colorHighlight = '#1e3a8a',
-  speed = 0.5,
-  flowStrength = 0.7,
+  speed = 0.6,
+  flowStrength = 0.8,
   grain = 0.02,
-  contrast = 1.05,
-  opacity = 0.65,
+  opacity = 0.85,
   className = '',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -198,7 +168,6 @@ export const WebGLLiquid: React.FC<WebGLLiquidProps> = ({
     const uSpeed = gl.getUniformLocation(program, 'u_speed');
     const uFlowStrength = gl.getUniformLocation(program, 'u_flowStrength');
     const uGrain = gl.getUniformLocation(program, 'u_grain');
-    const uContrast = gl.getUniformLocation(program, 'u_contrast');
     const uOpacity = gl.getUniformLocation(program, 'u_opacity');
 
     const resize = () => {
@@ -219,24 +188,24 @@ export const WebGLLiquid: React.FC<WebGLLiquidProps> = ({
     let isPageVisible = !document.hidden;
     const start = performance.now();
 
+    // Palette: Deep obsidian -> Royal Indigo -> Electric Cyan Accent
+    const deepRgb = [0.015, 0.025, 0.06]; // #040610
+    const midRgb = [0.06, 0.10, 0.28]; // #0f1a47
+    const highlightRgb = [0.15, 0.45, 0.85]; // #2673d9 glowing sapphire/sky ribbon
+
     const render = (now: number) => {
       const elapsedSec = (now - start) / 1000;
 
-      const deep = hexToRgb01(colorDeep);
-      const mid = hexToRgb01(colorMid);
-      const highlight = hexToRgb01(colorHighlight);
-
-      gl.clearColor(0.01, 0.015, 0.035, 1.0);
+      gl.clearColor(0.008, 0.015, 0.035, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       if (uTime) gl.uniform1f(uTime, elapsedSec);
-      if (uColorDeep) gl.uniform3f(uColorDeep, deep[0], deep[1], deep[2]);
-      if (uColorMid) gl.uniform3f(uColorMid, mid[0], mid[1], mid[2]);
-      if (uColorHighlight) gl.uniform3f(uColorHighlight, highlight[0], highlight[1], highlight[2]);
+      if (uColorDeep) gl.uniform3f(uColorDeep, deepRgb[0], deepRgb[1], deepRgb[2]);
+      if (uColorMid) gl.uniform3f(uColorMid, midRgb[0], midRgb[1], midRgb[2]);
+      if (uColorHighlight) gl.uniform3f(uColorHighlight, highlightRgb[0], highlightRgb[1], highlightRgb[2]);
       if (uSpeed) gl.uniform1f(uSpeed, speed);
       if (uFlowStrength) gl.uniform1f(uFlowStrength, flowStrength);
       if (uGrain) gl.uniform1f(uGrain, grain);
-      if (uContrast) gl.uniform1f(uContrast, contrast);
       if (uOpacity) gl.uniform1f(uOpacity, opacity);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -287,16 +256,7 @@ export const WebGLLiquid: React.FC<WebGLLiquidProps> = ({
       gl.deleteShader(fragmentShader);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [
-    colorDeep,
-    colorMid,
-    colorHighlight,
-    speed,
-    flowStrength,
-    grain,
-    contrast,
-    opacity,
-  ]);
+  }, [speed, flowStrength, grain, opacity]);
 
   return (
     <div
