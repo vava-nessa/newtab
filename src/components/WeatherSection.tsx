@@ -87,13 +87,13 @@ export const WeatherSection: React.FC = () => {
                   {/* Big Max/Min temperature with Fire or Frost badges */}
                   <div className="flex items-center gap-1.5">
                     {maxTempStyle.isHot && (
-                      <span className="flex items-center justify-center p-1 rounded-lg bg-orange-500/20 border border-orange-500/40 text-orange-400 animate-pulse">
-                        <Flame className="w-4 h-4 text-orange-400" />
+                      <span className="flex items-center justify-center p-1.5 rounded-xl bg-red-500/20 border border-red-500/50 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.5)] animate-pulse">
+                        <Flame className="w-4 h-4 text-red-500 fill-red-500/30" />
                       </span>
                     )}
 
                     {maxTempStyle.isCold && (
-                      <span className="flex items-center justify-center p-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 animate-pulse">
+                      <span className="flex items-center justify-center p-1.5 rounded-xl bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 shadow-[0_0_12px_rgba(103,232,249,0.5)] animate-pulse">
                         <Snowflake className="w-4 h-4 text-cyan-300" />
                       </span>
                     )}
@@ -121,8 +121,8 @@ export const WeatherSection: React.FC = () => {
                       <WeatherIcon code={day.morning.weatherCode} className="w-9 h-9 sm:w-10 sm:h-10" />
                     </div>
                     <div className="flex items-center gap-0.5">
-                      {day.morning.temp >= 30 && <Flame className="w-2.5 h-2.5 text-orange-400" />}
-                      {day.morning.temp < 5 && <Snowflake className="w-2.5 h-2.5 text-cyan-300" />}
+                      {day.morning.temp > 26 && <Flame className="w-3 h-3 text-red-500 fill-red-500/30 animate-pulse" />}
+                      {day.morning.temp < 5 && <Snowflake className="w-3 h-3 text-cyan-300" />}
                       <span className={`text-base font-mono ${getTempStyle(day.morning.temp).textClass}`}>
                         {day.morning.temp}°
                       </span>
@@ -148,8 +148,8 @@ export const WeatherSection: React.FC = () => {
                       <WeatherIcon code={day.afternoon.weatherCode} className="w-9 h-9 sm:w-10 sm:h-10" />
                     </div>
                     <div className="flex items-center gap-0.5">
-                      {day.afternoon.temp >= 30 && <Flame className="w-2.5 h-2.5 text-orange-400" />}
-                      {day.afternoon.temp < 5 && <Snowflake className="w-2.5 h-2.5 text-cyan-300" />}
+                      {day.afternoon.temp > 26 && <Flame className="w-3 h-3 text-red-500 fill-red-500/30 animate-pulse" />}
+                      {day.afternoon.temp < 5 && <Snowflake className="w-3 h-3 text-cyan-300" />}
                       <span className={`text-base font-mono ${getTempStyle(day.afternoon.temp).textClass}`}>
                         {day.afternoon.temp}°
                       </span>
@@ -175,8 +175,8 @@ export const WeatherSection: React.FC = () => {
                       <WeatherIcon code={day.evening.weatherCode} className="w-9 h-9 sm:w-10 sm:h-10" isNight />
                     </div>
                     <div className="flex items-center gap-0.5">
-                      {day.evening.temp >= 30 && <Flame className="w-2.5 h-2.5 text-orange-400" />}
-                      {day.evening.temp < 5 && <Snowflake className="w-2.5 h-2.5 text-cyan-300" />}
+                      {day.evening.temp > 26 && <Flame className="w-3 h-3 text-red-500 fill-red-500/30 animate-pulse" />}
+                      {day.evening.temp < 5 && <Snowflake className="w-3 h-3 text-cyan-300" />}
                       <span className={`text-base font-mono ${getTempStyle(day.evening.temp).textClass}`}>
                         {day.evening.temp}°
                       </span>

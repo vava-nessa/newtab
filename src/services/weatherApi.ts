@@ -101,12 +101,13 @@ export function getWeatherDescription(code: number): string {
 export interface TempStyle {
   textClass: string;
   color: string;
-  isHot: boolean; // >= 30°C
+  isHot: boolean; // > 26°C
   isCold: boolean; // < 5°C
 }
 
 export function getTempStyle(temp: number): TempStyle {
   if (temp < 5) {
+    // Froid glacial (< 5°) : Glace / Cyan polaire avec givre
     return {
       textClass: 'text-cyan-300 font-extrabold drop-shadow-[0_0_10px_rgba(103,232,249,0.8)]',
       color: '#67e8f9',
@@ -115,6 +116,7 @@ export function getTempStyle(temp: number): TempStyle {
     };
   }
   if (temp <= 14) {
+    // Frais (5-14°) : Émeraude / Menthe
     return {
       textClass: 'text-emerald-400 font-bold',
       color: '#34d399',
@@ -122,7 +124,8 @@ export function getTempStyle(temp: number): TempStyle {
       isCold: false,
     };
   }
-  if (temp <= 22) {
+  if (temp <= 21) {
+    // Doux (15-21°) : Doré solaire
     return {
       textClass: 'text-amber-300 font-bold',
       color: '#fde047',
@@ -130,7 +133,8 @@ export function getTempStyle(temp: number): TempStyle {
       isCold: false,
     };
   }
-  if (temp <= 29) {
+  if (temp <= 26) {
+    // Agréable / Chaud modéré (22-26°) : Orange vif
     return {
       textClass: 'text-orange-400 font-bold',
       color: '#fb923c',
@@ -138,10 +142,10 @@ export function getTempStyle(temp: number): TempStyle {
       isCold: false,
     };
   }
-  // >= 30°C : Burning Fire
+  // Très chaud (> 26°C) : Rouge vif flamboyant avec flammes et halo de chaleur intense
   return {
-    textClass: 'text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 font-black drop-shadow-[0_0_12px_rgba(244,63,94,0.8)]',
-    color: '#f43f5e',
+    textClass: 'text-red-500 font-black drop-shadow-[0_0_14px_rgba(239,68,68,0.95)]',
+    color: '#ef4444',
     isHot: true,
     isCold: false,
   };
