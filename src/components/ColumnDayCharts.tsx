@@ -115,7 +115,7 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
         </svg>
       </div>
 
-      {/* 2. In-Column Temperature Spline Curve */}
+      {/* 2. In-Column Temperature Spline Curve (Blue -> Green -> Red) */}
       <div>
         <div className="flex items-center justify-between text-[11px] font-mono mb-1 text-slate-400">
           <span className="font-semibold text-slate-300">Température 24h</span>
@@ -128,14 +128,14 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
         <svg viewBox={`0 0 ${width} ${tempHeight}`} className="w-full h-14 overflow-visible">
           <defs>
             <linearGradient id="colTempArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+              <stop offset="0%" stopColor="#22c55e" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#22c55e" stopOpacity="0.0" />
             </linearGradient>
             <linearGradient id="colTempLine" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#38bdf8" />
-              <stop offset="35%" stopColor="#34d399" />
-              <stop offset="70%" stopColor="#fde047" />
-              <stop offset="100%" stopColor="#f43f5e" />
+              <stop offset="0%" stopColor="#60a5fa" />
+              <stop offset="45%" stopColor="#34d399" />
+              <stop offset="75%" stopColor="#22c55e" />
+              <stop offset="100%" stopColor="#ef4444" />
             </linearGradient>
           </defs>
 

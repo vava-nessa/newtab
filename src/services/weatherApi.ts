@@ -107,16 +107,34 @@ export interface TempStyle {
 
 export function getTempStyle(temp: number): TempStyle {
   if (temp < 5) {
-    // Froid glacial (< 5°) : Glace / Cyan polaire avec givre
+    // Froid glacial (< 5°) : Bleu cyan très clair / givre
     return {
-      textClass: 'text-cyan-300 font-extrabold drop-shadow-[0_0_10px_rgba(103,232,249,0.8)]',
-      color: '#67e8f9',
+      textClass: 'text-cyan-200 font-extrabold drop-shadow-[0_0_10px_rgba(165,243,252,0.9)]',
+      color: '#a5f3fc',
       isHot: false,
       isCold: true,
     };
   }
+  if (temp <= 9) {
+    // Froid modéré (5-9°) : Bleu ciel clair
+    return {
+      textClass: 'text-sky-300 font-bold',
+      color: '#7dd3fc',
+      isHot: false,
+      isCold: false,
+    };
+  }
   if (temp <= 14) {
-    // Frais (5-14°) : Émeraude / Menthe
+    // Frais (10-14°) : Bleu roi plus foncé
+    return {
+      textClass: 'text-blue-400 font-bold',
+      color: '#60a5fa',
+      isHot: false,
+      isCold: false,
+    };
+  }
+  if (temp <= 20) {
+    // Tempéré / Doux (15-20°) : Vert menthe
     return {
       textClass: 'text-emerald-400 font-bold',
       color: '#34d399',
@@ -124,25 +142,16 @@ export function getTempStyle(temp: number): TempStyle {
       isCold: false,
     };
   }
-  if (temp <= 21) {
-    // Doux (15-21°) : Doré solaire
-    return {
-      textClass: 'text-amber-300 font-bold',
-      color: '#fde047',
-      isHot: false,
-      isCold: false,
-    };
-  }
   if (temp <= 26) {
-    // Agréable / Chaud modéré (22-26°) : Orange vif
+    // Tempéré chaud (21-26°) : Vert riche éclatant
     return {
-      textClass: 'text-orange-400 font-bold',
-      color: '#fb923c',
+      textClass: 'text-green-400 font-bold',
+      color: '#4ade80',
       isHot: false,
       isCold: false,
     };
   }
-  // Très chaud (> 26°C) : Rouge vif flamboyant avec flammes et halo de chaleur intense
+  // Très chaud (> 26°C) : Rouge vif flamboyant avec effet flammes
   return {
     textClass: 'text-red-500 font-black drop-shadow-[0_0_14px_rgba(239,68,68,0.95)]',
     color: '#ef4444',
