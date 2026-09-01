@@ -1,0 +1,11 @@
+- generic [ref=e3]:
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: "02"
+          - generic [ref=e9]: ":"
+          - generic [ref=e10]: "55"
+        - generic [ref=e11]: :53
+      - generic [ref=e13]: Mardi 1 septembre 2026
+  - contentinfo [ref=e25]: Météo Paris • Open-Meteo

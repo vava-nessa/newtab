@@ -13,6 +13,9 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
   const maxTemp = Math.max(...temps);
   const tempRange = Math.max(maxTemp - minTemp, 4);
 
+  const minStyle = getTempStyle(minTemp);
+  const maxStyle = getTempStyle(maxTemp);
+
   const width = 300;
   const rainHeight = 52;
   const tempHeight = 56;
@@ -27,7 +30,8 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
     const x = paddingX + idx * stepX;
     const normalized = (h.temp - minTemp) / tempRange;
     const y = tempHeight - paddingY - normalized * (tempHeight - paddingY * 2);
-    return { x, y, ...h };
+    const style = getTempStyle(h.temp);
+    return { x, y, style, ...h };
   });
 
   const tempPath = tempPoints.reduce((acc, point, i, arr) => {
@@ -115,27 +119,29 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
         </svg>
       </div>
 
-      {/* 2. In-Column Temperature Spline Curve (Blue -> Green -> Red) */}
+      {/* 2. In-Column Temperature Spline Curve with Distinct Degree Colors */}
       <div>
         <div className="flex items-center justify-between text-[11px] font-mono mb-1 text-slate-400">
           <span className="font-semibold text-slate-300">Température 24h</span>
           <div className="flex gap-2">
-            <span className={getTempStyle(minTemp).textClass}>min {minTemp}°</span>
-            <span className={getTempStyle(maxTemp).textClass}>max {maxTemp}°</span>
+            <span style={{ color: minStyle.hex }} className="font-bold">
+              min {minTemp}°
+            </span>
+            <span style={{ color: maxStyle.hex }} className="font-bold">
+              max {maxTemp}°
+            </span>
           </div>
         </div>
 
         <svg viewBox={`0 0 ${width} ${tempHeight}`} className="w-full h-14 overflow-visible">
           <defs>
             <linearGradient id="colTempArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#22c55e" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#22c55e" stopOpacity="0.0" />
+              <stop offset="0%" stopColor={maxStyle.hex} stopOpacity="0.25" />
+              <stop offset="100%" stopColor={minStyle.hex} stopOpacity="0.0" />
             </linearGradient>
             <linearGradient id="colTempLine" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#60a5fa" />
-              <stop offset="45%" stopColor="#34d399" />
-              <stop offset="75%" stopColor="#22c55e" />
-              <stop offset="100%" stopColor="#ef4444" />
+              <stop offset="0%" stopColor={minStyle.hex} />
+              <stop offset="100%" stopColor={maxStyle.hex} />
             </linearGradient>
           </defs>
 
@@ -162,14 +168,14 @@ export const ColumnDayCharts: React.FC<ColumnDayChartsProps> = ({ hourly }) => {
                   cy={pt.y}
                   r={isMin || isMax ? 3.5 : 2.5}
                   fill="#0f172a"
-                  stroke={getTempStyle(pt.temp).color}
+                  stroke={pt.style.hex}
                   strokeWidth={2}
                 />
                 {(isMin || isMax) && (
                   <text
                     x={pt.x}
                     y={pt.y - 5}
-                    fill={getTempStyle(pt.temp).color}
+                    fill={pt.style.hex}
                     fontSize="9"
                     fontWeight="bold"
                     fontFamily="monospace"

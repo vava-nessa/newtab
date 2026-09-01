@@ -208,10 +208,10 @@ export const WeatherCharts: React.FC<WeatherChartsProps> = ({ hourly }) => {
             <div className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-white flex items-center gap-2">
               <WeatherIcon code={hoveredHour.weatherCode} className="w-4 h-4" />
               <span>{hoveredHour.hourLabel}</span>
-              <span className={getTempStyle(hoveredHour.temp).textClass}>
+              <span style={{ color: getTempStyle(hoveredHour.temp).hex }}>
                 {hoveredHour.temp}°C
               </span>
-              {hoveredHour.temp >= 30 && <Flame className="w-3.5 h-3.5 text-orange-400" />}
+              {hoveredHour.temp > 26 && <Flame className="w-3.5 h-3.5 text-red-500" />}
               {hoveredHour.temp < 5 && <Snowflake className="w-3.5 h-3.5 text-cyan-300" />}
             </div>
           )}
@@ -225,15 +225,13 @@ export const WeatherCharts: React.FC<WeatherChartsProps> = ({ hourly }) => {
           >
             <defs>
               <linearGradient id="tempAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+                <stop offset="0%" stopColor="#22c55e" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#22c55e" stopOpacity="0.0" />
               </linearGradient>
               <linearGradient id="tempLineGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#38bdf8" />
-                <stop offset="30%" stopColor="#34d399" />
-                <stop offset="60%" stopColor="#fde047" />
-                <stop offset="85%" stopColor="#fb923c" />
-                <stop offset="100%" stopColor="#f43f5e" />
+                <stop offset="0%" stopColor="#3b82f6" />
+                <stop offset="50%" stopColor="#22c55e" />
+                <stop offset="100%" stopColor="#ef4444" />
               </linearGradient>
             </defs>
 
@@ -270,7 +268,7 @@ export const WeatherCharts: React.FC<WeatherChartsProps> = ({ hourly }) => {
                     cy={pt.y}
                     r={isHovered ? 6 : isMin || isMax ? 4.5 : 3}
                     fill="#0f172a"
-                    stroke={tempStyle.color}
+                    stroke={tempStyle.hex}
                     strokeWidth={isHovered ? 3 : 2}
                   />
 
@@ -279,7 +277,7 @@ export const WeatherCharts: React.FC<WeatherChartsProps> = ({ hourly }) => {
                     <text
                       x={pt.x}
                       y={pt.y - 8}
-                      fill={isHovered ? '#ffffff' : tempStyle.color}
+                      fill={isHovered ? '#ffffff' : tempStyle.hex}
                       fontSize={isMin || isMax ? '11' : '10'}
                       fontWeight="bold"
                       fontFamily="monospace"

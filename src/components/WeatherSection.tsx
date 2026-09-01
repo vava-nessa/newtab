@@ -57,6 +57,10 @@ export const WeatherSection: React.FC = () => {
             const maxTempStyle = getTempStyle(day.tempMax);
             const minTempStyle = getTempStyle(day.tempMin);
 
+            const morningStyle = getTempStyle(day.morning.temp);
+            const afternoonStyle = getTempStyle(day.afternoon.temp);
+            const eveningStyle = getTempStyle(day.evening.temp);
+
             return (
               <div
                 key={day.date}
@@ -84,7 +88,7 @@ export const WeatherSection: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Big Max/Min temperature with Fire or Frost badges */}
+                  {/* Big Max/Min temperature with Unique Degree Color and Fire or Frost badges */}
                   <div className="flex items-center gap-1.5">
                     {maxTempStyle.isHot && (
                       <span className="flex items-center justify-center p-1.5 rounded-xl bg-red-500/20 border border-red-500/50 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.5)] animate-pulse">
@@ -99,11 +103,17 @@ export const WeatherSection: React.FC = () => {
                     )}
 
                     <div className="flex items-baseline gap-1 font-mono">
-                      <span className={`text-2xl sm:text-3xl ${maxTempStyle.textClass}`}>
+                      <span
+                        className="text-2xl sm:text-3xl font-black transition-colors"
+                        style={{ color: maxTempStyle.hex, textShadow: maxTempStyle.textShadow }}
+                      >
                         {day.tempMax}°
                       </span>
                       <span className="text-slate-600 text-base">/</span>
-                      <span className={`text-sm font-semibold ${minTempStyle.textClass}`}>
+                      <span
+                        className="text-sm font-semibold transition-colors"
+                        style={{ color: minTempStyle.hex }}
+                      >
                         {day.tempMin}°
                       </span>
                     </div>
@@ -121,9 +131,12 @@ export const WeatherSection: React.FC = () => {
                       <WeatherIcon code={day.morning.weatherCode} className="w-9 h-9 sm:w-10 sm:h-10" />
                     </div>
                     <div className="flex items-center gap-0.5">
-                      {day.morning.temp > 26 && <Flame className="w-3 h-3 text-red-500 fill-red-500/30 animate-pulse" />}
-                      {day.morning.temp < 5 && <Snowflake className="w-3 h-3 text-cyan-300" />}
-                      <span className={`text-base font-mono ${getTempStyle(day.morning.temp).textClass}`}>
+                      {morningStyle.isHot && <Flame className="w-3 h-3 text-red-500 fill-red-500/30 animate-pulse" />}
+                      {morningStyle.isCold && <Snowflake className="w-3 h-3 text-cyan-300" />}
+                      <span
+                        className="text-base font-mono font-bold transition-colors"
+                        style={{ color: morningStyle.hex }}
+                      >
                         {day.morning.temp}°
                       </span>
                     </div>
@@ -148,9 +161,12 @@ export const WeatherSection: React.FC = () => {
                       <WeatherIcon code={day.afternoon.weatherCode} className="w-9 h-9 sm:w-10 sm:h-10" />
                     </div>
                     <div className="flex items-center gap-0.5">
-                      {day.afternoon.temp > 26 && <Flame className="w-3 h-3 text-red-500 fill-red-500/30 animate-pulse" />}
-                      {day.afternoon.temp < 5 && <Snowflake className="w-3 h-3 text-cyan-300" />}
-                      <span className={`text-base font-mono ${getTempStyle(day.afternoon.temp).textClass}`}>
+                      {afternoonStyle.isHot && <Flame className="w-3 h-3 text-red-500 fill-red-500/30 animate-pulse" />}
+                      {afternoonStyle.isCold && <Snowflake className="w-3 h-3 text-cyan-300" />}
+                      <span
+                        className="text-base font-mono font-bold transition-colors"
+                        style={{ color: afternoonStyle.hex }}
+                      >
                         {day.afternoon.temp}°
                       </span>
                     </div>
@@ -175,9 +191,12 @@ export const WeatherSection: React.FC = () => {
                       <WeatherIcon code={day.evening.weatherCode} className="w-9 h-9 sm:w-10 sm:h-10" isNight />
                     </div>
                     <div className="flex items-center gap-0.5">
-                      {day.evening.temp > 26 && <Flame className="w-3 h-3 text-red-500 fill-red-500/30 animate-pulse" />}
-                      {day.evening.temp < 5 && <Snowflake className="w-3 h-3 text-cyan-300" />}
-                      <span className={`text-base font-mono ${getTempStyle(day.evening.temp).textClass}`}>
+                      {eveningStyle.isHot && <Flame className="w-3 h-3 text-red-500 fill-red-500/30 animate-pulse" />}
+                      {eveningStyle.isCold && <Snowflake className="w-3 h-3 text-cyan-300" />}
+                      <span
+                        className="text-base font-mono font-bold transition-colors"
+                        style={{ color: eveningStyle.hex }}
+                      >
                         {day.evening.temp}°
                       </span>
                     </div>

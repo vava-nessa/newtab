@@ -98,65 +98,101 @@ export function getWeatherDescription(code: number): string {
   return WMO_WEATHER_MAP_FR[code]?.label || 'Non déterminé';
 }
 
+interface ThermalColorStop {
+  temp: number;
+  r: number;
+  g: number;
+  b: number;
+}
+
+const THERMAL_COLOR_STOPS: ThermalColorStop[] = [
+  // FROID (< 18°C) : Dégradé du bleu très clair / cyan (<5°) au bleu roi/saphir profond (17°)
+  { temp: -10, r: 240, g: 249, b: 255 }, // Glace arctique
+  { temp: -5, r: 224, g: 242, b: 254 },  // Givre blanc-bleu
+  { temp: 0, r: 186, g: 230, b: 253 },   // Cyan glacier
+  { temp: 4, r: 125, g: 211, b: 252 },   // Bleu ciel givré
+  { temp: 8, r: 56, g: 189, b: 248 },    // Bleu ciel lumineux
+  { temp: 11, r: 14, g: 165, b: 233 },   // Bleu azur
+  { temp: 13, r: 2, g: 132, b: 199 },    // Bleu océan
+  { temp: 15, r: 59, g: 130, b: 246 },   // Bleu royal
+  { temp: 16, r: 37, g: 99, b: 235 },    // Bleu cobalt
+  { temp: 17, r: 29, g: 78, b: 216 },    // Bleu saphir foncé
+
+  // TEMPÉRÉ / DOUX (18°C à 26°C) : Dégradé de Verts uniques
+  { temp: 18, r: 45, g: 212, b: 191 },   // Turquoise menthe (transition verte)
+  { temp: 19, r: 16, g: 185, b: 129 },   // Vert émeraude
+  { temp: 20, r: 34, g: 197, b: 94 },    // Vert herbe
+  { temp: 21, r: 74, g: 222, b: 128 },   // Vert pomme clair
+  { temp: 22, r: 134, g: 239, b: 172 },  // Vert menthe doux
+  { temp: 23, r: 74, g: 222, b: 128 },   // Vert vif
+  { temp: 24, r: 34, g: 197, b: 94 },    // Vert riche
+  { temp: 25, r: 22, g: 163, b: 74 },    // Vert dense
+  { temp: 26, r: 21, g: 128, b: 61 },    // Vert forêt profond
+
+  // CHALEUR (> 26°C) : Dégradé de Rouges ardents avec flammes
+  { temp: 27, r: 248, g: 113, b: 113 },  // Rouge corail
+  { temp: 28, r: 239, g: 68, b: 68 },    // Rouge écarlate
+  { temp: 29, r: 220, g: 38, b: 38 },    // Rouge feu intense
+  { temp: 31, r: 185, g: 28, b: 28 },    // Rouge rubis sombre
+  { temp: 34, r: 225, g: 29, b: 72 },    // Rouge incandescent
+  { temp: 40, r: 255, g: 0, b: 85 },     // Brasier extrême
+];
+
 export interface TempStyle {
-  textClass: string;
-  color: string;
+  hex: string;
+  rgb: string;
+  textShadow: string;
   isHot: boolean; // > 26°C
   isCold: boolean; // < 5°C
 }
 
 export function getTempStyle(temp: number): TempStyle {
-  if (temp < 5) {
-    // Froid glacial (< 5°) : Bleu cyan très clair / givre
-    return {
-      textClass: 'text-cyan-200 font-extrabold drop-shadow-[0_0_10px_rgba(165,243,252,0.9)]',
-      color: '#a5f3fc',
-      isHot: false,
-      isCold: true,
-    };
+  // Find surrounding stops
+  let stopA = THERMAL_COLOR_STOPS[0];
+  let stopB = THERMAL_COLOR_STOPS[THERMAL_COLOR_STOPS.length - 1];
+
+  if (temp <= stopA.temp) {
+    stopB = stopA;
+  } else if (temp >= stopB.temp) {
+    stopA = stopB;
+  } else {
+    for (let i = 0; i < THERMAL_COLOR_STOPS.length - 1; i++) {
+      if (temp >= THERMAL_COLOR_STOPS[i].temp && temp <= THERMAL_COLOR_STOPS[i + 1].temp) {
+        stopA = THERMAL_COLOR_STOPS[i];
+        stopB = THERMAL_COLOR_STOPS[i + 1];
+        break;
+      }
+    }
   }
-  if (temp <= 9) {
-    // Froid modéré (5-9°) : Bleu ciel clair
-    return {
-      textClass: 'text-sky-300 font-bold',
-      color: '#7dd3fc',
-      isHot: false,
-      isCold: false,
-    };
+
+  const range = stopB.temp - stopA.temp;
+  const factor = range === 0 ? 0 : (temp - stopA.temp) / range;
+
+  const r = Math.round(stopA.r + (stopB.r - stopA.r) * factor);
+  const g = Math.round(stopA.g + (stopB.g - stopA.g) * factor);
+  const b = Math.round(stopA.b + (stopB.b - stopA.b) * factor);
+
+  const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  const rgb = `rgb(${r}, ${g}, ${b})`;
+
+  const isHot = temp > 26;
+  const isCold = temp < 5;
+
+  let textShadow = 'none';
+  if (isHot) {
+    textShadow = '0 0 14px rgba(239, 68, 68, 0.95), 0 0 24px rgba(239, 68, 68, 0.5)';
+  } else if (isCold) {
+    textShadow = '0 0 12px rgba(165, 243, 252, 0.9), 0 0 20px rgba(56, 189, 248, 0.4)';
+  } else {
+    textShadow = `0 0 10px rgba(${r}, ${g}, ${b}, 0.45)`;
   }
-  if (temp <= 14) {
-    // Frais (10-14°) : Bleu roi plus foncé
-    return {
-      textClass: 'text-blue-400 font-bold',
-      color: '#60a5fa',
-      isHot: false,
-      isCold: false,
-    };
-  }
-  if (temp <= 20) {
-    // Tempéré / Doux (15-20°) : Vert menthe
-    return {
-      textClass: 'text-emerald-400 font-bold',
-      color: '#34d399',
-      isHot: false,
-      isCold: false,
-    };
-  }
-  if (temp <= 26) {
-    // Tempéré chaud (21-26°) : Vert riche éclatant
-    return {
-      textClass: 'text-green-400 font-bold',
-      color: '#4ade80',
-      isHot: false,
-      isCold: false,
-    };
-  }
-  // Très chaud (> 26°C) : Rouge vif flamboyant avec effet flammes
+
   return {
-    textClass: 'text-red-500 font-black drop-shadow-[0_0_14px_rgba(239,68,68,0.95)]',
-    color: '#ef4444',
-    isHot: true,
-    isCold: false,
+    hex,
+    rgb,
+    textShadow,
+    isHot,
+    isCold,
   };
 }
 
